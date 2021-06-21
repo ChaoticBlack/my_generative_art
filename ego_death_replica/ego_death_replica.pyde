@@ -1,4 +1,4 @@
-import uuid
+import uuid         #for randomised file naming
 import os
 import random as Rand
 def setup():
@@ -87,7 +87,7 @@ def draw():
     progress = progress +3
     pop() 
     if r > width+200:
-        #noLoop()
+        #noLoop()                   #uncomment if you want slight deepfryer effect
         # loadPixels()
         # for i in range(width*height):
         #     c = random(-30,30)
@@ -109,11 +109,11 @@ def draw():
     if megaCount==10:
         
        noLoop()     
-       dir="/home/raju/sketchbook/ego_death_replica/"
+       dir="/home/raju/sketchbook/ego_death_replica/"           #directory where the images are stored
        file = sorted(os.listdir(dir))
        for i in range(len(file)-2):
            #print(i)
            img = loadImage(dir+file[i])
            tint(255,90)
            image(img,0,0)
-       saveFrame("output-####.png")
+       saveFrame("output-####.png")                     # final image with overlap of all previous images
