@@ -3,6 +3,8 @@
 - The curves are deliberately not smooth. Gives it a raw feeling that i like.
 - Notice how no circle has its center hidden behind another circle. Its subtle but it adds character and order to an otherwise fairly random sketch.
 
+In version 2, added another subtlety that the colour of a circle will never be same as its closest neighbour. This looks really cool when there is a circle entirely inside another circle.
+
 suggest some colour combinations if you will.
 
 ### Outputs
