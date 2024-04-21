@@ -1,0 +1,1 @@
+- Contains simple functions to generate Bézier curves of any power. The functions can be imported into other projects or rewritten as class attributes to generate Bézier curves.
