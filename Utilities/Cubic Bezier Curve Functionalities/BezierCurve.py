@@ -10,12 +10,18 @@ class BezierCurve:
         self.control2 = list_of_points[2]
         self.anchor2 = list_of_points[3]
         self.increment = 0.001
-        self.dist_btwn_curves = 50
+        self.dist_btwn_curves = 150
+        # for smallest osculating circle
+        self.max_curvature = 0
+        self.min_radius = 0
+        self.center = PVector(0)
+
         self.inflection_points_list = []
         (self.bezier_point_vector_list,
          self.first_derivative_vector_list,
          self.second_derivative_vector_list) = \
             self.calculate_curve_details()
+        self.calculate_smallest_osculating_circle()
 
     def calculate_curve_details(self):
         bezier_point_vector_list = []
@@ -79,10 +85,6 @@ class BezierCurve:
         acceleration = PVector(point_x, point_y)
         return acceleration
 
-    def draw_curve(self):
-        for bezier_point in self.bezier_point_vector_list:
-            point(bezier_point.x, bezier_point.y)
-
     def parallel_curves_in_both_directions(self):
         for index in range(len(self.first_derivative_vector_list)):
             dist_to_cover = self.dist_btwn_curves
@@ -112,13 +114,14 @@ class BezierCurve:
         if second_derivative_vector.x * second_derivative_vector.y < 0:
             self.inflection_points_list.append(bezier_point_vector)
 
-    def draw_inflection_point_bold(self):
+    def calculate_smallest_osculating_circle(self):
         for inflection_point in self.inflection_points_list:
-            stroke(0, 255, 255)
-            strokeWeight(10)
-            point(inflection_point.x, inflection_point.y)
+            curvature=self.calculate_curvature(inflection_point)
+            if curvature>self.max_curvature:
+                self.max_curvature = curvature
+                self.center, self.min_radius = self.calculate_radius_and_center(curvature, inflection_point)
 
-    def calculate_osculating_circle(self, point_on_curve):
+    def calculate_curvature(self, point_on_curve):
         index_point_on_curve = \
             self.bezier_point_vector_list.index(point_on_curve)
         curvature_direction = \
@@ -128,14 +131,16 @@ class BezierCurve:
             self.first_derivative_vector_list[index_point_on_curve].mag() \
             ** 3
         curvature = curvature_direction.mag() / curvature_magnitude
+        return curvature
 
-        # Compute radius of osculating circle
-
+    def calculate_radius_and_center(self, curvature,point_on_curve):
         if curvature != 0:
             radius = 1 / curvature
         else:
             radius = float('inf')
-        curvature_direction.normalize()
+
+        index_point_on_curve = \
+            self.bezier_point_vector_list.index(point_on_curve)
         normal_vector = \
             self.first_derivative_vector_list[index_point_on_curve].copy().normalize().rotate(HALF_PI).mult(radius)
         center = \
@@ -144,6 +149,15 @@ class BezierCurve:
                     self.bezier_point_vector_list[index_point_on_curve].y
                     + normal_vector.y)
         return (center, radius)
+
+    def calculate_osculating_circle(self, point_on_curve):
+        curvature = self.calculate_curvature(point_on_curve)
+        center, radius = self.calculate_radius_and_center(curvature, point_on_curve)
+        return (center, radius)
+
+
+    ### Visualizing functions.
+    ### Ideally not to be used. 
 
     def draw_osculating_circle_at_inflection(self):
         random_index = int(random(0, len(self.inflection_points_list)
@@ -154,4 +168,21 @@ class BezierCurve:
         noFill()
         stroke(255, 0, 0)
         circle(center.x, center.y, radius * 2)
+        pop()
+
+    def draw_curve(self):
+        for bezier_point in self.bezier_point_vector_list:
+            point(bezier_point.x, bezier_point.y)
+
+    def draw_inflection_point_bold(self):
+        for inflection_point in self.inflection_points_list:
+            stroke(0, 255, 255)
+            strokeWeight(10)
+            point(inflection_point.x, inflection_point.y)
+
+    def draw_smallest_osculating_circle(self):
+        push()
+        noFill()
+        stroke(255, 0, 0)
+        circle(self.center.x, self.center.y, self.min_radius * 2)
         pop()
